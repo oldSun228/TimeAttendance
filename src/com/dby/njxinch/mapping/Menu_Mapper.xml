@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dby.njxinch.dao.menu.MenuDao">
+    <resultMap id="functionMenus" type="com.dby.njxinch.model.FunctionMenus">
+        <id property="menuId" column="F_MENU_ID"/>
+		<result property="menuSn" column="F_MENU_SN"/>
+        <result property="parentMenuId" column="F_PARENT_MENU_ID"/>
+        <result property="menuPic" column="F_MENU_PIC"/>
+        <result property="menuName" column="F_MENU_NAME"/>
+        <result property="menuUrl" column="F_MENU_URL"/>
+        <result property="status" column="F_STATUS"/>
+        <result property="remark" column="F_REMARK"/>
+        <result property="createBy" column="F_CREATEBY"/>
+        <result property="createTime" column="F_CREATE_TIME"/>
+    </resultMap>
+
+	<!--获取菜单list-->
+	<select id="getMenusList" parameterType="java.util.Map" resultMap="functionMenus">
+		select t3.* from t_role_menu_relation t1
+		left join t_role t2 on t1.f_role_id =  t2.f_role_id
+		left join t_function_menus t3 on t1.f_menu_id=t3.f_menu_id
+		where   t1.F_STATUS = #{status}
+			and t2.F_STATUS = #{status}
+			and t3.F_STATUS = #{status}
+		<if test="menuId == null">
+			and t2.f_role_identy=#{roleIdenty}
+			and t3.F_PARENT_MENU_ID=0
+		</if>
+		<if test="menuId != null">
+			and t2.f_role_identy=#{roleIdenty}
+			and t3.F_PARENT_MENU_ID=#{menuId}
+			and t3.F_PARENT_MENU_ID != 0
+		</if>
+		ORDER  BY F_MENU_SN ASC;
+	</select>
+
+    <!--新增菜单-->
+    <insert id="saveMenuData" parameterType="java.util.Map">
+		INSERT INTO t_function_menus(
+		 F_MENU_SN,
+		 F_PARENT_MENU_ID,
+		 F_MENU_PIC,
+		 F_MENU_NAME,
+		 F_MENU_URL,
+		 F_STATUS,
+		 F_REMARK,
+		 F_CREATEBY,
+		 F_CREATE_TIME
+		) VALUES (
+		 #{menuSn},
+	     #{parentMenuId},
+	     #{menuPic},
+	     #{menuName},
+	     #{menuUrl},
+	     #{status},
+	     #{remark},
+	     #{createBy},
+	     now()
+	    );
+	</insert>
+
+    <!--修改菜单-->
+    <update id="updateMenuData" parameterType="java.util.Map">
+		UPDATE t_function_menus SET
+		 F_MENU_SN=#{menuSn},
+		 F_PARENT_MENU_ID=#{parentMenuId},
+		 F_MENU_PIC= #{menuPic},
+		 F_MENU_NAME= #{menuName},
+		 F_MENU_URL= #{menuUrl},
+		 F_STATUS= #{status},
+		 F_REMARK =  #{remark}
+		WHERE F_MENU_ID=#{menuId};
+	</update>
+
+	<!--验证名称是否存在-->
+	<select id="checkMenuName" parameterType="java.util.Map" resultMap="functionMenus">
+		select * from t_function_menus where 1=1
+		<if test="menuName != null">
+			and F_MENU_NAME=#{menuName}
+		</if>
+		<if test="menuId != null">
+			and F_MENU_ID=#{menuId}
+		</if>
+
+	</select>
+
+
+	<!--删除-->
+	<delete id="deletePowerMenu" parameterType="java.util.Map">
+		DELETE FROM t_role_menu_relation WHERE F_ROLE_ID=#{roleId}
+	</delete>
+
+	<!--新增-->
+	<insert id="addPowerMenu" useGeneratedKeys="true" parameterType="java.util.List">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into t_role_menu_relation (F_ROLE_ID,F_MENU_ID,F_STATUS,F_CREATE_BY,F_CREATE_TIME)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.roleId},#{item.menuId},#{item.status},#{item.createBy},now())
+		</foreach>
+	</insert>
+</mapper>

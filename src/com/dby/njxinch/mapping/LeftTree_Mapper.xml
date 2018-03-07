@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dby.njxinch.dao.leftTree.LeftTreeDao">
+	<resultMap id="functionMenus" type="com.dby.njxinch.model.FunctionMenus">
+		<id property="menuId" column="F_MENU_ID" />
+		<result property="menuSn" column="F_MENU_SN" />
+		<result property="parentMenuId" column="F_PARENT_MENU_ID" />
+		<result property="menuPic" column="F_MENU_PIC" />
+		<result property="menuName" column="F_MENU_NAME" />
+		<result property="menuUrl" column="F_MENU_URL" />
+		<result property="status" column="F_STATUS" />
+		<result property="remark" column="F_REMARK" />
+		<result property="createBy" column="F_CREATEBY" />
+		<result property="createTime" column="F_CREATE_TIME" />
+	</resultMap>
+
+	<select id="getFirstMenus" resultMap="functionMenus" parameterType="java.util.Map">
+		select * from t_function_menus where 1=1
+		<if test="status != null">
+			AND F_STATUS=#{status}
+		</if>
+		AND F_PARENT_MENU_ID =0 ORDER  BY F_MENU_SN ASC;
+	</select>
+
+	<select id="getChildMenus" resultMap="functionMenus" parameterType="java.util.Map">
+		select * from t_function_menus where 1=1
+		<if test="status != null">
+			AND F_STATUS=#{status}
+		</if>
+		AND F_PARENT_MENU_ID =#{menuId} ORDER  BY F_MENU_SN ASC;
+	</select>
+</mapper>

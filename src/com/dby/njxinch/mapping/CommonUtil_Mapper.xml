@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dby.njxinch.dao.commonUtil.CommonUtilDao">
+	<resultMap id="keyMapper" type="com.dby.njxinch.model.DataDictionary">
+		<id property="dicId" column="F_DIC_ID"/>
+		<result property="parentId" column="F_PARENT_ID"/>
+		<result property="name" column="F_NAME"/>
+		<result property="code" column="F_CODE"/>
+		<result property="identy" column="F_IDENTY"/>
+		<result property="description" column="F_DESCRIPTION"/>
+		<result property="status" column="F_STATUS"/>
+		<result property="remark" column="F_REMARK"/>
+		<result property="createBy" column="F_CREATE_BY"/>
+		<result property="createTime" column="F_CREATE_TIME"/>
+	</resultMap>
+
+	<!--key list-->
+	<select id="queryListForKey" resultMap="keyMapper" parameterType="java.util.Map">
+		select * from t_data_dictionary where F_IDENTY != "" and F_PARENT_ID != 0
+	</select>
+
+	<!--value list-->
+	<select id="queryListForValue" resultMap="keyMapper" parameterType="java.util.Map">
+		select * from t_data_dictionary where F_IDENTY = "" or F_IDENTY is null
+	</select>
+
+
+
+</mapper>

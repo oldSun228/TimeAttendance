@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dby.njxinch.dao.power.PowerDao">
+	<resultMap id="powerMenu" type="com.dby.njxinch.model.entity.RoleMenu">
+		<id property="relationId" column="F_RELATION_ID"/>
+		<result property="menuId" column="F_MENU_ID"/>
+		<result property="roleId" column="F_ROLE_ID"/>
+		<result property="status" column="F_STATUS"/>
+		<result property="remark" column="F_REMARK"/>
+		<result property="createBy" column="F_CREATE_BY"/>
+		<result property="createTime" column="F_CREATE_TIME"/>
+	</resultMap>
+
+	<!--删除-->
+	<delete id="deletePowerMenu" parameterType="java.util.Map">
+		DELETE FROM t_role_menu_relation WHERE F_ROLE_ID=#{roleId}
+	</delete>
+
+    <!--新增-->
+    <insert id="addPowerMenu" useGeneratedKeys="true" parameterType="java.util.List">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into t_role_menu_relation (F_ROLE_ID,F_MENU_ID,F_STATUS,F_CREATE_BY,F_CREATE_TIME)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.roleId},#{item.menuId},#{item.status},#{item.createBy},now())
+		</foreach>
+	</insert>
+
+</mapper>

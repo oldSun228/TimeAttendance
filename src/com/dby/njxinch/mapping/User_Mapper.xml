@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dby.njxinch.dao.user.UserDao">
+	<resultMap id="SysUser" type="com.dby.njxinch.model.User">
+		<id column="F_USER_ID" property="userId" jdbcType="BIGINT" />
+		<result column="F_DEPARTMENT_ID" property="departmentId" jdbcType="BIGINT" />
+		<result column="F_USER_NAME" property="userName" jdbcType="VARCHAR" />
+		<result column="F_SEX" property="sex" jdbcType="VARCHAR" />
+		<result column="F_HEAD_PORTRAIT" property="headPortrait" jdbcType="VARCHAR" />
+		<result column="F_QQ_NUMBER" property="qqNumber" jdbcType="VARCHAR" />
+		<result column="F_SIGNATURE" property="signature" jdbcType="VARCHAR" />
+		<result column="F_TELPHONE" property="telphone" jdbcType="VARCHAR" />
+		<result column="F_IDCARD" property="idcard" jdbcType="VARCHAR" />
+		<result column="F_BIRTHDAY" property="birthday" jdbcType="VARCHAR" />
+		<result column="F_WORK_YEAR" property="workYear" jdbcType="VARCHAR" />
+		<result column="F_WAGE" property="wage" jdbcType="VARCHAR" />
+		<result column="F_GRA_SCHOOL" property="graSchool" jdbcType="VARCHAR" />
+		<result column="F_EDUCATION" property="education" jdbcType="VARCHAR" />
+		<result column="F_ENTRY_TIME" property="entryTime" jdbcType="TIMESTAMP" />
+		<result column="F_LEAVE_TIME" property="leaveTime" jdbcType="TIMESTAMP" />
+		<result column="F_ACCOUNT" property="account" jdbcType="VARCHAR" />
+		<result column="F_PASSWORD" property="password" jdbcType="VARCHAR" />
+		<result column="F_ADDRESS" property="address" jdbcType="VARCHAR" />
+		<result column="F_STATUS" property="status" jdbcType="VARCHAR" />
+		<result column="F_REMARK" property="remark" jdbcType="VARCHAR" />
+		<result column="F_CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+		<result column="F_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<select id="getUserByName" resultMap="SysUser" parameterType="java.lang.String">
+		select * from t_user where F_ACCOUNT=#{account};
+	</select>
+
+	<!--获取用户分页列表-->
+	<select id="getUserPageList" resultMap="SysUser" parameterType="java.util.Map">
+		select * from t_user where 1=1
+		<if test="userName != null">
+			and F_USER_NAME like CONCAT('%','${userName}','%' )
+		</if>
+		<if test="status != null">
+			and F_STATUS=#{status}
+		</if>
+		limit #{startPage},#{pageSize};
+	</select>
+
+	<!--获取用户总数-->
+	<select id="getUserTotalCount" resultType="java.lang.Integer">
+		select count(1) from t_user where 1=1
+		<if test="userName != null">
+			and F_USER_NAME like CONCAT('%','${userName}','%' )
+		</if>
+		<if test="status != null">
+			and F_STATUS=#{status}
+		</if>
+	</select>
+
+	<select id="checkAccountName" resultMap="SysUser" parameterType="java.util.Map">
+		select * from t_user where 1=1
+		<if test="account != null">
+			and F_ACCOUNT=#{account}
+		</if>
+		<if test="roleId != null">
+			and F_USER_ID=#{userId}
+		</if>
+	</select>
+
+</mapper>

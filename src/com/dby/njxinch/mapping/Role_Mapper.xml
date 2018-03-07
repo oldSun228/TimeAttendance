@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dby.njxinch.dao.role.RoleDao">
+    <resultMap id="roleMapper" type="com.dby.njxinch.model.entity.Role">
+        <id property="roleId" column="F_ROLE_ID"/>
+        <result property="roleName" column="F_ROEL_NAME"/>
+		<result property="roleIdenty" column="F_ROLE_IDENTY"/>
+        <result property="status" column="F_STATUS"/>
+        <result property="remark" column="F_REMARK"/>
+        <result property="createBy" column="F_CREATE_BY"/>
+        <result property="createTime" column="F_CREATE_TIME"/>
+    </resultMap>
+
+    <!--角色分页列表-->
+    <select id="getPageList" resultMap="roleMapper" parameterType="java.util.Map">
+		select * from t_role where 1=1
+		<if test="roleName != null">
+			and F_ROEL_NAME like CONCAT('%','${roleName}','%' )
+		</if>
+		<if test="status != null">
+			and F_STATUS=#{status}
+		</if>
+		 limit #{startPage},#{pageSize};
+	</select>
+
+    <!--角色分页总数-->
+    <select id="getTotalCount" resultType="java.lang.Integer">
+		select count(1) from t_role where 1=1
+		<if test="roleName != null">
+			and F_ROEL_NAME like CONCAT('%','${roleName}','%' )
+		</if>
+		<if test="status != null">
+			and F_STATUS=#{status}
+		</if>
+	</select>
+
+    <!--角色增加-->
+    <insert id="saveRoleData" parameterType="java.util.Map">
+	  INSERT INTO t_role(
+		 F_ROEL_NAME,
+		 F_STATUS,
+		 F_REMARK,
+		 F_CREATE_BY,
+		 F_CREATE_TIME
+		) VALUES (
+	     #{roleName},
+	     #{status},
+	     #{remark},
+	     #{createBy},
+	     now()
+	    );
+	</insert>
+
+    <!--角色增加 角色名称check-->
+    <select id="checkRoleName" parameterType="java.util.Map" resultMap="roleMapper">
+		select * from t_role where 1=1
+		<if test="roleName != null">
+			and F_ROEL_NAME=#{roleName}
+		</if>
+		<if test="roleId != null">
+			and F_ROLE_ID=#{roleId}
+		</if>
+
+	</select>
+
+    <!--角色详情-->
+    <select id="detailRoleData" parameterType="java.util.Map" resultMap="roleMapper">
+		SELECT * FROM t_role WHERE F_ROLE_ID=#{roleId};
+	</select>
+
+    <!--角色修改-->
+    <update id="updateRoleData" parameterType="java.util.Map">
+		UPDATE t_role SET
+		 F_ROEL_NAME=#{roleName},
+		 F_STATUS=#{status},
+		 F_REMARK=#{remark},
+		 F_CREATE_BY=#{createBy}
+		WHERE F_ROLE_ID=#{roleId};
+	</update>
+
+    <!--角色删除-->
+    <delete id="delRoleData" parameterType="java.util.Map">
+		DELETE FROM t_role WHERE F_ROLE_ID=#{roleId};
+	</delete>
+
+	<!--角色list-->
+	<select id="getRoleList" resultMap="roleMapper" parameterType="java.util.Map">
+		select * from t_role where 1=1
+		<if test="roleIdenty != null">
+			and F_ROLE_IDENTY=#{roleIdenty}
+		</if>
+	</select>
+
+	<!--通过账号获取角色list-->
+	<select id="getRoleListByAccount" resultMap="roleMapper" parameterType="java.util.Map">
+		select t3.* from t_user_role_relation t1
+		left join t_user t2 on t1.f_user_id = t2.f_user_id
+		left join t_role t3 on t1.f_role_id = t3.f_role_id
+		where t2.f_account=#{account}
+		and t1.f_status=1
+		and t2.f_status=1
+		and t3.f_status=1
+	</select>
+
+	<!--已经存在的角色-->
+	<select id="existRoleList" resultMap="roleMapper" parameterType="java.util.Map">
+		select * from t_user_role_relation t1
+		left join t_role t2 on t1.f_role_id = t2.f_role_id
+		where 1=1
+		and t1.f_status='1'
+		and t2.f_status='1'
+		<if test="userId != null">
+			and t1.f_user_id=#{userId}
+		</if>
+	</select>
+
+	<!--不存在的角色-->
+	<select id="noExistRoleList" resultMap="roleMapper" parameterType="java.util.Map">
+		select * from t_role t where t.f_status='1' and t.f_role_id not in(select t1.f_role_id from t_user_role_relation t1
+		left join t_role t2 on t1.f_role_id = t2.f_role_id
+		where 1=1
+		and t1.f_status='1'
+		and t2.f_status='1'
+		and t1.f_user_id =#{userId} )
+	</select>
+
+	<!--删除用户角色关系-->
+	<delete id="delRoleUserRelationByUserId" parameterType="java.util.Map">
+		DELETE FROM t_user_role_relation WHERE f_user_id=#{userId}
+	</delete>
+
+	<!--新增-->
+	<insert id="insertRoleUserRelationByUserId" useGeneratedKeys="true" parameterType="java.util.List">
+		<selectKey resultType="long" keyProperty="id" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into t_user_role_relation (F_USER_ID,F_ROLE_ID,F_STATUS,F_CREATE_BY,F_CREATE_TIME)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.userId},#{item.roleId},#{item.status},#{item.createBy},now())
+		</foreach>
+	</insert>
+
+</mapper>
