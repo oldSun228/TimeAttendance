@@ -8,6 +8,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <head>  
 <base href="<%=basePath%>">  
 <title></title>
+
 <script type="text/javascript">
 	window.location.href = "loginManage/toHomepage"
 </script>
